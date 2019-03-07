@@ -54,6 +54,6 @@ specific method.
 To contribute it is possible to perform a pull request. If your goal is to add a new method then
 follow the next steps:
 
-- Add a module in the [methods](ace_recognition_toolbox/methods) directory that contains a class with a `predict` method.
+- Add a module in the [methods](face_recognition_toolbox/methods) directory that contains a class with a `predict` method.
 - Add the reference to the class [here](face_recognition_toolbox/methods/__init__.py)
 - Add instance and call to the predict method in [utils.py](face_recognition_toolbox/utils.py)
