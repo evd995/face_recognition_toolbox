@@ -6,11 +6,12 @@ Documentation can be found at https://github.com/rcmalli/keras-vggface
 
 import cv2
 import numpy as np
-from keras_vggface.vggface import VGGFace as VGGFaceModel
 
 
 class VGGFace:
     def __init__(self, model='resnet50'):
+        from keras_vggface.vggface import VGGFace as VGGFaceModel
+
         self.model = VGGFaceModel(model=model)
 
     def predict(self, image, normalize=True):

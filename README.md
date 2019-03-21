@@ -67,11 +67,11 @@ specific method.
 
 ### AlexNet, GoogleNet and SphereFace
 
-`WARNING: AlexNet, GoogleNet and SphereFace can only run in Python 2.7 and Keras 1.2`
+`WARNING: AlexNet, GoogleNet and SphereFace can only run in Python 2.7 and Keras 1.2.2`
 
 - Download weights at https://github.com/kgrm/face-recog-eval
 - Move weight to the [weight directory](face_recognition_toolbox/methods/weights).
-- If currently installed version of Keras is greater than 1.2, it has to be downgraded before running this method with the command `pip install --upgrade keras==1.2`
+- If currently installed version of Keras is greater than 1.2.2, it has to be downgraded before running this method with the command `pip install --upgrade keras==1.2.2`
 
 ## Tutorials/Demos
 

@@ -12,8 +12,7 @@ import cv2
 import sys
 
 
-def getRGB(image_path):
-    bgr_img = cv2.imread(image_path)
+def getRGB(bgr_img):
     rgb_img = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2RGB)
     return rgb_img
 

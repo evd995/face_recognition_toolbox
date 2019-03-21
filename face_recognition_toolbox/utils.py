@@ -46,7 +46,7 @@ def predict(image, method_name, **kwargs):
     elif method_name == 'OpenFace':
         from .methods import OpenFace
         model = OpenFace(**kwargs)
-    elif method_name == 'face_recogntion':
+    elif method_name == 'face_recognition':
         from .methods import FaceRecognition
         model = FaceRecognition(**kwargs)
 

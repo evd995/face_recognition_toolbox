@@ -35,10 +35,10 @@ def load_existing_weights(filename, model):
             oldparams = layerdict[name].get_weights()
             for old, new in zip(oldparams, filters):
                 if old.shape != new.shape:
-                    print(old.shape, new.shape)
+                    print old.shape, new.shape
                 assert old.shape == new.shape
             layerdict[name].set_weights(filters)
-            print(name)
+            print name
     if new_filename != filename:
         os.remove(new_filename)
     f.close()
@@ -492,8 +492,10 @@ def vgg_face(weights_path=None, output_layer = "prob", N_classes = 2622,
 
 def randpredict(model, shape, scale):
     arr = np.random.rand(*shape) * scale
+    print arr.shape
     ret = model.predict(arr)
-    print(ret.dtype, ret.shape, ret.min(), ret.max())
+    print ret.dtype, ret.shape, ret.min(), ret.max()
+
 
 if __name__ == "__main__":
     m1 = squeezenet(50, output="denseFeatures",
