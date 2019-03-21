@@ -1,8 +1,15 @@
+"""
+WARNING: OpenFace requires Python 2.7
+Module for managing the AlexNet recognition method.
+
+Obtained from https://github.com/kgrm/face-recog-eval
+"""
+
 import os
 import cv2
 import numpy as np
-from .networks_def import AlexNet as AlexNetDef
 from keras import backend as K
+from .networks_def import AlexNet as AlexNetDef
 
 
 class AlexNet:
@@ -19,8 +26,15 @@ class AlexNet:
 
     def predict(self, image, normalize=True):
         """
-        Images are resized to 224x224
+        Get encoding of the face.
+
+        Image will be resized to 224x224 using bicubic interpolation
+
+        :param np.array image: Face image
+        :param bool normalize: Return normalized vector
+        :return: Face encoding
         """
+
         # Image preprocessing
         image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_CUBIC)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)

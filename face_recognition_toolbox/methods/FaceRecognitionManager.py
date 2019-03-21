@@ -1,3 +1,8 @@
+"""
+Module for managing the face_recognition recognition method.
+
+To install this method follow instructions at https://github.com/ageitgey/face_recognition#installation
+"""
 import face_recognition
 import numpy as np
 import dlib
@@ -8,6 +13,13 @@ class FaceRecognition:
         pass
 
     def predict(self, image, normalize=True):
+        """
+        Get encoding of the face.
+
+        :param np.array image: Face image
+        :param bool normalize: Return normalized vector
+        :return: Face encoding
+        """
 
         bb = (0, image.shape[1], image.shape[0], 0)
         encoding = face_recognition.face_encodings(

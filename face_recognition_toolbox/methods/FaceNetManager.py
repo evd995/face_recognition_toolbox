@@ -1,7 +1,6 @@
 """
 Module for managing the FaceNet recognition method.
 
-
 2018-04-08:
     FaceNet has two pretrained models available, one trained
     with the CASIA-WebFace dataset and the other with VGGFace2.
@@ -10,6 +9,8 @@ Module for managing the FaceNet recognition method.
     The name of the respective models are:
         - facenet-20180408-102900.pb (for CASIA-WebFace)
         - facenet-20180402-114759.pb (for VGGFace2, default)
+
+    Pre-trained models can be downloaded at https://github.com/davidsandberg/facenet#pre-trained-models
 """
 
 import tensorflow as tf
@@ -24,10 +25,12 @@ class FaceNet:
 
     def __init__(self, model='facenet-20180402-114759.pb'):
         """
-        Loads a FaceNet instance with the specified model.
+        Loads a FaceNet instance with the specified model (it has to exist in "weights" directory).
 
         This method loads a frozen graph because it is less memory 
         consuming than loading the whole model.
+
+        :param str model: Name of the file of the model (it has to exist in "weights" directory).
         """
         print('Load Frozen Graph')
 
@@ -41,6 +44,15 @@ class FaceNet:
         print('Ended loading frozen graph')
 
     def predict(self, image, normalize=True):
+        """
+        Get encoding of the face.
+
+        Image will be resized to 160x160 using bicubic interpolation
+
+        :param np.array image: Face image
+        :param bool normalize: Return normalized vector
+        :return: Face encoding
+        """
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = cv2.resize(
             image, (IMAGE_SIZE, IMAGE_SIZE), interpolation=cv2.INTER_CUBIC)

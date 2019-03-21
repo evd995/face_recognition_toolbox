@@ -1,8 +1,15 @@
-import openface
-import cv2
-import numpy as np
-import os
+"""
+WARNING: OpenFace requires Python 2.7
+Module for managing the OpenFace recognition method.
+
+To install this method follow instructions at https://cmusatyalab.github.io/openface/setup/
+"""
+
 import time
+import os
+import numpy as np
+import cv2
+import sys
 
 
 def getRGB(image_path):
@@ -20,6 +27,12 @@ class OpenFace:
             - fileDir: path of OpenFace Directory (of git clone)
             - model: (optional) file name of the model
         """
+
+        if sys.version_info[0] != 2:
+            raise ImportError("OpenFace requires Python 2.7")
+        else:
+            import openface
+
         # Get paths of dlib model and predictors
         # OpenFace Directory (of git clone)
         modelDir = os.path.join(fileDir, 'models')
@@ -30,11 +43,17 @@ class OpenFace:
         networkModel = os.path.join(openfaceModelDir, model)
         self.imgDim = 96
 
-        self.model = openface.TorchNeuralNet(networkModel, imgDim)
+        self.model = openface.TorchNeuralNet(networkModel, self.imgDim)
 
     def predict(self, image, normalize=True):
         """
-        Recieves BGR image as input and returns forward pass of the image
+        Get encoding of the face.
+
+        Image will be resized to 224x224 using bicubic interpolation
+
+        :param np.array image: BGR face image
+        :param bool normalize: Return normalized vector
+        :return: Face encoding
         """
 
         rgbImg = getRGB(image)

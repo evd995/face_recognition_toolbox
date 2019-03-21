@@ -1,25 +1,24 @@
 """
 Contains model definitions for SqueezeNet, AlexNet, GoogleNet and VGGFace used in
-Grm, K., Štruc, V., Artiges, A., Caron, M., Ekenel, H. K. Strengths and Weaknesses 
-of Deep Learning Models for Face Recognition Against Image Degradations. 
+Grm, K., et al. Strengths and Weaknesses of Deep Learning Models for Face 
+Recognition Against Image Degradations. 
 Published in: IET Biometrics, 2017.
 
 Obtained from https://github.com/kgrm/face-recog-eval
 """
-
-
 from keras.models import Sequential, Model
 from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D, Flatten
 from keras.layers import AveragePooling2D, BatchNormalization, Dense, Lambda
-from keras.layers import Dropout, Input, Activation, Concatenate
+from keras.layers import merge, Dropout, Input, Activation
 from keras.regularizers import l2, l1
-#from keras.utils.visualize_util import plot
+# from keras.utils.visualize_util import plot
 from keras import backend as K
 import h5py
 import numpy as np
 import sys, os
-#from itertools import cycle
+# from itertools import cycle
 
+K.set_image_dim_ordering('th')
 
 def load_existing_weights(filename, model):
     new_filename = filename
@@ -74,7 +73,7 @@ def fire_layer(x, filters_squeeze, filters_1x1, filters_3x3,
     if filters_3x3 == 0:
         return expand_1x1
     else:
-        return Concatenate([expand_1x1, expand_3x3],
+        return merge([expand_1x1, expand_3x3],
                      mode="concat", 
                      concat_axis=1, 
                      name="%s_output"%name_prefix)
@@ -104,23 +103,23 @@ def squeezenet(N_classes,
                       name="conv1",
                       init=init)(x)
 
-    y = MaxPooling2D(pool_size=(3,3), strides=(2,2), border_mode="same",  data_format="channels_first")(y)
+    y = MaxPooling2D(pool_size=(3,3), strides=(2,2), border_mode="same")(y)
 
     y = fire_layer(y, 16, 64 , 64 , r, "fire2", act="relu", init=init)
     y1 = fire_layer(y, 16, 64 , 64 , r, "fire3", act="relu", init=init)
 
     if simple_bypass:
-        y = Concatenate([y, y1], mode="sum", name="bypass1")
+        y = merge([y, y1], mode="sum", name="bypass1")
     else:
         y = y1
     y = fire_layer(y, 32, 128, 128, r, "fire4", act="relu", init=init)
 
-    y = MaxPooling2D(pool_size=(3,3), strides=(2,2), border_mode="same",  data_format="channels_first")(y)
+    y = MaxPooling2D(pool_size=(3,3), strides=(2,2), border_mode="same")(y)
 
     y1 = fire_layer(y, 32, 128, 128, r, "fire5", act="relu", init=init)
 
     if simple_bypass:
-        y = Concatenate([y, y1], mode="sum", name="bypass2")
+        y = merge([y, y1], mode="sum", name="bypass2")
     else:
         y = y1
 
@@ -128,18 +127,18 @@ def squeezenet(N_classes,
     y1 = fire_layer(y, 48, 192, 192, r, "fire7", act="relu", init=init)
 
     if simple_bypass:
-        y = Concatenate([y, y1], mode="sum", name="bypass3")
+        y = merge([y, y1], mode="sum", name="bypass3")
     else:
         y = y1
 
     y = fire_layer(y, 64, 256, 256, r, "fire8", act="relu", init=init)
 
-    y = MaxPooling2D(pool_size=(3,3), strides=(2,2), border_mode="same", data_format="channels_first")(y)
+    y = MaxPooling2D(pool_size=(3,3), strides=(2,2), border_mode="same")(y)
 
     y1 = fire_layer(y, 64, 256, 256, r, "fire9", act="relu", init=init)
 
     if (simple_bypass and (not fire11_1024)):
-        y = Concatenate([y, y1], mode="sum", name="bypass4")
+        y = merge([y, y1], mode="sum", name="bypass4")
     else:
         y = y1
 
@@ -152,7 +151,7 @@ def squeezenet(N_classes,
     elif fire11_1024:
         y = fire_layer(y, 64, 256, 256, r, "fire10", "relu", init)
         if simple_bypass:
-            y = Concatenate([y, y1], mode="sum", name="bypass4")
+            y = merge([y, y1], mode="sum", name="bypass4")
         else:
             y = y1
         y = fire_layer(y, 128, 512, 512, r, "fire11", "relu", init)
@@ -178,14 +177,12 @@ def squeezenet(N_classes,
         m = 1
     return m
 
-
 def Conv2D(c, h, w, strides=(1, 1),  act_fun="relu", border="same", r=1e-4):
     def f(input_):
-        return Convolution2D(c, h, w, strides=strides, padding='same',
+        return Convolution2D(c, h, w, subsample=strides,
                              activation=act_fun, border_mode=border,
-                             kernel_regularizer=l2(r), bias_regularizer=l2(r))(input_)
+                             W_regularizer=l2(r), b_regularizer=l2(r))(input_)
     return f
-
 
 def AlexNet(N_classes=1000, r=1e-4, p_dropout=0.5,  borders="same",
             inshape=(3, 224, 224), include_top=True, include_softmax=True):
@@ -193,26 +190,26 @@ def AlexNet(N_classes=1000, r=1e-4, p_dropout=0.5,  borders="same",
         borders = [borders] * 5
     x = Input(inshape)
     y = Conv2D(96, 11, 11, (4, 4), r=r, border=borders[0])(x)
-    y = MaxPooling2D((3, 3), (2, 2), data_format="channels_first")(y)
+    y = MaxPooling2D((3, 3), (2, 2))(y)
     y = BatchNormalization(axis=1)(y)
     y = Conv2D(256, 5, 5, r=r, border=borders[1])(y)
-    y = MaxPooling2D((3, 3), (2, 2), data_format="channels_first")(y)
+    y = MaxPooling2D((3, 3), (2, 2))(y)
     y = BatchNormalization(axis=1)(y)
     y = Conv2D(384, 3, 3, r=r, border=borders[2])(y)
     y = Conv2D(384, 3, 3, r=r, border=borders[3])(y)
     y = Conv2D(256, 3, 3, r=r, border=borders[4])(y)
     if include_top:
-        y = MaxPooling2D((3, 3), (2, 2), data_format="channels_first")(y)
+        y = MaxPooling2D((3, 3), (2, 2))(y)
         y = Flatten()(y)
         y = Dense(4096, activation="relu", 
-                  kernel_regularizer=l2(r), bias_regularizer=l2(r))(y)
+                  W_regularizer=l2(r), b_regularizer=l2(r))(y)
         y = Dropout(p_dropout)(y)
-        y = Dense(4096, activation="relu",
-                  kernel_regularizer=l2(r), bias_regularizer=l2(r))(y)
+        y = Dense(4096, activation="relu", 
+                  W_regularizer=l2(r), b_regularizer=l2(r))(y)
         if include_softmax:
             y = Dropout(p_dropout)(y)
-            y = Dense(N_classes, activation="softmax", kernel_regularizer=l2(r),
-                      name="%d_way_softmax"%N_classes, bias_regularizer=l2(r))(y)
+            y = Dense(N_classes, activation="softmax", W_regularizer=l2(r),
+                      name="%d_way_softmax"%N_classes, b_regularizer=l2(r))(y)
     m = Model(x, y)
 #    m.summary()
     m.compile("adam", "categorical_crossentropy", metrics=["accuracy"])
@@ -249,11 +246,11 @@ def InceptionV3(N_classes=1000, include_top=True):
     x = conv2d_bn(img_input, 32, 3, 3, subsample=(2, 2), border_mode='valid')
     x = conv2d_bn(x, 32, 3, 3, border_mode='valid')
     x = conv2d_bn(x, 64, 3, 3)
-    x = MaxPooling2D((3, 3), strides=(2, 2), data_format="channels_first")(x)
+    x = MaxPooling2D((3, 3), strides=(2, 2))(x)
 
     x = conv2d_bn(x, 80, 1, 1, border_mode='valid')
     x = conv2d_bn(x, 192, 3, 3, border_mode='valid')
-    x = MaxPooling2D((3, 3), strides=(2, 2),  data_format="channels_first")(x)
+    x = MaxPooling2D((3, 3), strides=(2, 2))(x)
 
     # mixed 0, 1, 2: 35 x 35 x 256
     for i in range(3):
@@ -269,7 +266,7 @@ def InceptionV3(N_classes=1000, include_top=True):
         branch_pool = AveragePooling2D(
             (3, 3), strides=(1, 1), border_mode='same')(x)
         branch_pool = conv2d_bn(branch_pool, 32, 1, 1)
-        x = Concatenate([branch1x1, branch5x5, branch3x3dbl, branch_pool],
+        x = merge([branch1x1, branch5x5, branch3x3dbl, branch_pool],
                   mode='concat', concat_axis=channel_axis,
                   name='mixed' + str(i))
 
@@ -281,10 +278,10 @@ def InceptionV3(N_classes=1000, include_top=True):
     branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3,
                              subsample=(2, 2), border_mode='valid')
 
-    branch_pool = MaxPooling2D((3, 3), strides=(2, 2), data_format="channels_first")(x)
-    x = Concatenate([branch3x3, branch3x3dbl, branch_pool],
-                    mode='concat', concat_axis=channel_axis,
-                    name='mixed3')
+    branch_pool = MaxPooling2D((3, 3), strides=(2, 2))(x)
+    x = merge([branch3x3, branch3x3dbl, branch_pool],
+              mode='concat', concat_axis=channel_axis,
+              name='mixed3')
 
     # mixed 4: 17 x 17 x 768
     branch1x1 = conv2d_bn(x, 192, 1, 1)
@@ -301,7 +298,7 @@ def InceptionV3(N_classes=1000, include_top=True):
 
     branch_pool = AveragePooling2D((3, 3), strides=(1, 1), border_mode='same')(x)
     branch_pool = conv2d_bn(branch_pool, 192, 1, 1)
-    x = Concatenate([branch1x1, branch7x7, branch7x7dbl, branch_pool],
+    x = merge([branch1x1, branch7x7, branch7x7dbl, branch_pool],
               mode='concat', concat_axis=channel_axis,
               name='mixed4')
 
@@ -322,9 +319,9 @@ def InceptionV3(N_classes=1000, include_top=True):
         branch_pool = AveragePooling2D(
             (3, 3), strides=(1, 1), border_mode='same')(x)
         branch_pool = conv2d_bn(branch_pool, 192, 1, 1)
-        x = Concatenate([branch1x1, branch7x7, branch7x7dbl, branch_pool],
-                         mode='concat', concat_axis=channel_axis,
-                         name='mixed' + str(5 + i))
+        x = merge([branch1x1, branch7x7, branch7x7dbl, branch_pool],
+                  mode='concat', concat_axis=channel_axis,
+                  name='mixed' + str(5 + i))
 
     # mixed 7: 17 x 17 x 768
     branch1x1 = conv2d_bn(x, 192, 1, 1)
@@ -341,7 +338,7 @@ def InceptionV3(N_classes=1000, include_top=True):
 
     branch_pool = AveragePooling2D((3, 3), strides=(1, 1), border_mode='same')(x)
     branch_pool = conv2d_bn(branch_pool, 192, 1, 1)
-    x = Concatenate([branch1x1, branch7x7, branch7x7dbl, branch_pool],
+    x = merge([branch1x1, branch7x7, branch7x7dbl, branch_pool],
               mode='concat', concat_axis=channel_axis,
               name='mixed7')
 
@@ -357,7 +354,7 @@ def InceptionV3(N_classes=1000, include_top=True):
                             subsample=(2, 2), border_mode='valid')
 
     branch_pool = AveragePooling2D((3, 3), strides=(2, 2))(x)
-    x = Concatenate([branch3x3, branch7x7x3, branch_pool],
+    x = merge([branch3x3, branch7x7x3, branch_pool],
               mode='concat', concat_axis=channel_axis,
               name='mixed8')
 
@@ -368,7 +365,7 @@ def InceptionV3(N_classes=1000, include_top=True):
         branch3x3 = conv2d_bn(x, 384, 1, 1)
         branch3x3_1 = conv2d_bn(branch3x3, 384, 1, 3)
         branch3x3_2 = conv2d_bn(branch3x3, 384, 3, 1)
-        branch3x3 = Concatenate([branch3x3_1, branch3x3_2],
+        branch3x3 = merge([branch3x3_1, branch3x3_2],
                           mode='concat', concat_axis=channel_axis,
                           name='mixed9_' + str(i))
 
@@ -376,13 +373,13 @@ def InceptionV3(N_classes=1000, include_top=True):
         branch3x3dbl = conv2d_bn(branch3x3dbl, 384, 3, 3)
         branch3x3dbl_1 = conv2d_bn(branch3x3dbl, 384, 1, 3)
         branch3x3dbl_2 = conv2d_bn(branch3x3dbl, 384, 3, 1)
-        branch3x3dbl = Concatenate([branch3x3dbl_1, branch3x3dbl_2],
+        branch3x3dbl = merge([branch3x3dbl_1, branch3x3dbl_2],
                              mode='concat', concat_axis=channel_axis)
 
         branch_pool = AveragePooling2D(
             (3, 3), strides=(1, 1), border_mode='same')(x)
         branch_pool = conv2d_bn(branch_pool, 192, 1, 1)
-        x = Concatenate([branch1x1, branch3x3, branch3x3dbl, branch_pool],
+        x = merge([branch1x1, branch3x3, branch3x3dbl, branch_pool],
                   mode='concat', concat_axis=channel_axis,
                   name='mixed' + str(9 + i))
     
@@ -413,7 +410,7 @@ def vgg_face(weights_path=None, output_layer = "prob", N_classes = 2622,
     conv1_2 = Convolution2D(64, 3, 3, activation='relu', name='conv1_2',
                             W_regularizer=l2(r),
                             b_regularizer=l2(r))(pad1_2)
-    pool1 = MaxPooling2D((2, 2), strides=(2, 2), data_format="channels_first")(conv1_2)
+    pool1 = MaxPooling2D((2, 2), strides=(2, 2))(conv1_2)
 
     pad2_1 = ZeroPadding2D((1, 1))(pool1)
     conv2_1 = Convolution2D(128, 3, 3, activation='relu', name='conv2_1',
@@ -423,7 +420,7 @@ def vgg_face(weights_path=None, output_layer = "prob", N_classes = 2622,
     conv2_2 = Convolution2D(128, 3, 3, activation='relu', name='conv2_2',
                             W_regularizer=l2(r),
                             b_regularizer=l2(r))(pad2_2)
-    pool2 = MaxPooling2D((2, 2), strides=(2, 2), data_format="channels_first")(conv2_2)
+    pool2 = MaxPooling2D((2, 2), strides=(2, 2))(conv2_2)
 
     pad3_1 = ZeroPadding2D((1, 1))(pool2)
     conv3_1 = Convolution2D(256, 3, 3, activation='relu', name='conv3_1',
@@ -437,7 +434,7 @@ def vgg_face(weights_path=None, output_layer = "prob", N_classes = 2622,
     conv3_3 = Convolution2D(256, 3, 3, activation='relu', name='conv3_3',
                             W_regularizer=l2(r),
                             b_regularizer=l2(r))(pad3_3)
-    pool3 = MaxPooling2D((2, 2), strides=(2, 2), data_format="channels_first")(conv3_3)
+    pool3 = MaxPooling2D((2, 2), strides=(2, 2))(conv3_3)
 
     pad4_1 = ZeroPadding2D((1, 1))(pool3)
     conv4_1 = Convolution2D(512, 3, 3, activation='relu', name='conv4_1',
@@ -451,7 +448,7 @@ def vgg_face(weights_path=None, output_layer = "prob", N_classes = 2622,
     conv4_3 = Convolution2D(512, 3, 3, activation='relu', name='conv4_3',
                             W_regularizer=l2(r),
                             b_regularizer=l2(r))(pad4_3)
-    pool4 = MaxPooling2D((2, 2), strides=(2, 2), data_format="channels_first")(conv4_3)
+    pool4 = MaxPooling2D((2, 2), strides=(2, 2))(conv4_3)
 
     pad5_1 = ZeroPadding2D((1, 1))(pool4)
     conv5_1 = Convolution2D(512, 3, 3, activation='relu', name='conv5_1',
@@ -465,7 +462,7 @@ def vgg_face(weights_path=None, output_layer = "prob", N_classes = 2622,
     conv5_3 = Convolution2D(512, 3, 3, activation='relu', name='conv5_3',
                             W_regularizer=l2(r),
                             b_regularizer=l2(r))(pad5_3)
-    pool5 = MaxPooling2D((2, 2), strides=(2, 2), data_format="channels_first")(conv5_3)
+    pool5 = MaxPooling2D((2, 2), strides=(2, 2))(conv5_3)
 
     flat = Flatten()(pool5)
     fc6 = Dense(4096, activation='relu', name='fc6',
@@ -493,25 +490,31 @@ def vgg_face(weights_path=None, output_layer = "prob", N_classes = 2622,
 
     return model
 
-
 def randpredict(model, shape, scale):
     arr = np.random.rand(*shape) * scale
     ret = model.predict(arr)
     print(ret.dtype, ret.shape, ret.min(), ret.max())
 
-
 if __name__ == "__main__":
     m1 = squeezenet(50, output="denseFeatures",
                        simple_bypass=True, fire11_1024=True)
+    print('Loading 1')
     m1.load_weights("weights/luksface-weights.h5")
     m2 = AlexNet(N_classes=1000, r=1e-4, p_dropout=0.5,  borders="same",
                  inshape=(3, 224, 224), include_softmax=False)
+    print('Loading 2')
     m2.load_weights("weights/alexnet_weights.h5", by_name=True)
     m3 = InceptionV3(include_top=False)
+    print('Loading 3')
     m3.load_weights("weights/googlenet_weights.h5")
     m4 = vgg_face(output_layer="fc6")
+    print('Loading 4')
     m4.load_weights("weights/vgg_face_weights.h5", by_name=True)
+    print('Squeeze')
     randpredict(m1, (1, 3, 224, 224), 255)
+    print('AlexNet')
     randpredict(m2, (1, 3, 224, 224), 255)
+    print('GoogleNet')
     randpredict(m3, (1, 3, 299, 299), 255)
+    print('VggFace ')
     randpredict(m4, (1, 3, 224, 224), 255)
