@@ -65,7 +65,7 @@ specific method.
 
 - Run `pip install face_recognition`
 
-### AlexNet, GoogleNet and SphereFace
+### AlexNet, GoogleNet and SphereFace
 
 `WARNING: AlexNet, GoogleNet and SphereFace can only run in Python 2.7 and Keras 1.2.2`
 
@@ -75,7 +75,7 @@ specific method.
 
 ## Tutorials/Demos
 
-- A simple impletentation can be found in [this notebook](tests/Run_methods.ipynb)
+- A simple impletentation can be found in [this notebook](tests/Run methods.ipynb)
 
 ## How to contribute
 
