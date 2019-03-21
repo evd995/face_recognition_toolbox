@@ -1,7 +1,5 @@
 # Face Recognition Module
 
-Este repositorio contiene herramientas para realizar reconocimiento facial usando distintos algoritmos. Por ahora los algoritmos incluídos son:
-
 This repository contains tools and different method to peform facial recognition. The algorithms
 that are supported so far are:
 
