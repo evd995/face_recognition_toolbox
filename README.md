@@ -75,7 +75,7 @@ specific method.
 
 ## Tutorials/Demos
 
-- A simple impletentation can be found in [this notebook](tests/Run methods.ipynb)
+- A simple impletentation can be found in [this notebook](tests/Run_methods.ipynb)
 
 ## How to contribute
 
