@@ -11,12 +11,18 @@ that are supported so far are:
 - AlexNet: https://github.com/kgrm/face-recog-eval
 - GoogleNet (Inception-V3): https://github.com/kgrm/face-recog-eval
 - SqueezeNet: https://github.com/kgrm/face-recog-eval
-- SphereFace: https://github.com/clcarwin/sphereface_pytorch
+- [NOT IMPLEMENTED] SphereFace: https://github.com/clcarwin/sphereface_pytorch
 
 The main goal of this toolbox is to compare the performance of different facial recognition methods
 as done in [this paper](http://dmery.sitios.ing.uc.cl/Prints/Conferences/International/2019-WACV.pdf)
 
 ## Setup
+
+### How to install library
+
+To use this library, clone the reopository using `git clone https://github.com/evd995/face_recognition_toolbox.git`
+
+### General Depencencies
 
 Libraries used:
 
@@ -29,18 +35,18 @@ Libraries used:
 - dlib: `pip install dlib`
 - h5py: `pip install h5py`
 
-Not all methods are used in all the libraries. Below are the instructions to install the requirements of each
-specific method.
 
-To use this library, clone the reopository using `git clone https://github.com/evd995/face_recognition_toolbox.git`
+### Method Specific Depencencies
 
-### OpenFace
+Each method has different installing instructions, each of which can be found bellow.
+
+#### OpenFace
 
 `WARNING: OpenFace can only run in Python 2.7`
 
 - Follow instructions at https://cmusatyalab.github.io/openface/setup/
 
-### FaceNet
+#### FaceNet
 
 - Download pre-trained models at https://github.com/davidsandberg/facenet#pre-trained-models
 - Move weight to the [weight directory](face_recognition_toolbox/methods/weights).
@@ -57,17 +63,17 @@ To use this library, clone the reopository using `git clone https://github.com/e
 
   Pre-trained models can be downloaded at https://github.com/davidsandberg/facenet#pre-trained-models
 
-### VGG-Face
+#### VGG-Face
 
 - Run `pip install keras_vggface`
 - 2019-03-21: As of today, `keras_vggface` supports the models: vgg16, resnet50 and senet50. The default is
   resnet50 but it can be specified by passing the `model` parameter with the desired model name.
 
-### face_recognition
+#### face_recognition
 
 - Run `pip install face_recognition`
 
-### AlexNet, GoogleNet and SphereFace
+#### AlexNet, GoogleNet and SphereFace
 
 `WARNING: AlexNet, GoogleNet and SphereFace can only run in Python 2.7 and Keras 1.2.2`
 
