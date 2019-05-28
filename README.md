@@ -32,6 +32,8 @@ Libraries used:
 Not all methods are used in all the libraries. Below are the instructions to install the requirements of each
 specific method.
 
+To use this library, clone the reopository using `git clone https://github.com/evd995/face_recognition_toolbox.git`
+
 ### OpenFace
 
 `WARNING: OpenFace can only run in Python 2.7`
