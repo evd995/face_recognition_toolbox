@@ -64,7 +64,7 @@ import cv2
 
 # Add package to path
 import sys
-sys.path.append("/PATH_TO_CLONED_GIT")
+sys.path.append("/PATH_TO_CLONED_GIT/face_recognition_toolbox")
 
 # Import package
 from face_recognition_toolbox import predict
@@ -91,7 +91,7 @@ import cv2
 
 # Add package to path
 import sys
-sys.path.append("/PATH_TO_CLONED_GIT")
+sys.path.append("/PATH_TO_CLONED_GIT/face_recognition_toolbox")
 
 # Import package
 from face_recognition_toolbox import predict
@@ -117,7 +117,7 @@ import cv2
 
 # Add package to path
 import sys
-sys.path.append("/PATH_TO_CLONED_GIT")
+sys.path.append("/PATH_TO_CLONED_GIT/face_recognition_toolbox")
 
 # Import package
 from face_recognition_toolbox import predict
