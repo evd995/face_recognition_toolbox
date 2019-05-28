@@ -40,12 +40,6 @@ Libraries used:
 
 Each method has different installing instructions, each of which can be found bellow.
 
-#### OpenFace
-
-`WARNING: OpenFace can only run in Python 2.7`
-
-- Follow instructions at https://cmusatyalab.github.io/openface/setup/
-
 #### FaceNet
 
 - Download pre-trained models at https://github.com/davidsandberg/facenet#pre-trained-models
@@ -62,16 +56,81 @@ Each method has different installing instructions, each of which can be found be
   - facenet-20180402-114759.pb (for VGGFace2, default)
 
   Pre-trained models can be downloaded at https://github.com/davidsandberg/facenet#pre-trained-models
+  
+Simple example:
+
+``` python
+import cv2
+
+# Add package to path
+import sys
+sys.path.append("/PATH_TO_CLONED_GIT")
+
+# Import package
+from face_recognition_toolbox import predict
+
+# Looks for "facenet-20180402-114759.pb" (default) in the "/weights" directory
+descriptor = predict(image, method_name='FaceNet')
+
+# Looks for "facenet-20180402-114759.pb" in the "/weights" directory using "model" parameter
+descriptor = predict(image, method_name='FaceNet', model="facenet-20180402-114759.pb")
+```
+
+
 
 #### VGG-Face
 
-- Run `pip install keras_vggface`
+- Run `pip install keras_vggface` or follow instructions in https://github.com/rcmalli/keras-vggface#keras-vggface-
 - 2019-03-21: As of today, `keras_vggface` supports the models: vgg16, resnet50 and senet50. The default is
   resnet50 but it can be specified by passing the `model` parameter with the desired model name.
+ 
+Simple example:
 
-#### face_recognition
+``` python
+import cv2
 
-- Run `pip install face_recognition`
+# Add package to path
+import sys
+sys.path.append("/PATH_TO_CLONED_GIT")
+
+# Import package
+from face_recognition_toolbox import predict
+
+# Using default model (resnet50)
+descriptor = predict(image, method_name='VGGFace')
+
+# Specifying model with "model" parameter
+descriptor = predict(image, method_name='VGGFace', model='resnet50')
+```
+
+
+
+#### face_recognition (dlib)
+
+- Run `pip install face_recognition` or follow instructions in https://github.com/ageitgey/face_recognition#installation
+
+
+Simple example:
+
+``` python
+import cv2
+
+# Add package to path
+import sys
+sys.path.append("/PATH_TO_CLONED_GIT")
+
+# Import package
+from face_recognition_toolbox import predict
+
+descriptor = predict(image, method_name='face_recognition')
+```
+
+
+#### OpenFace
+
+`WARNING: OpenFace can only run in Python 2.7`
+
+- Follow instructions at https://cmusatyalab.github.io/openface/setup/
 
 #### AlexNet, GoogleNet and SphereFace
 
