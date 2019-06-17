@@ -56,6 +56,13 @@ class FaceNet:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = cv2.resize(
             image, (IMAGE_SIZE, IMAGE_SIZE), interpolation=cv2.INTER_CUBIC)
+        
+        # Facenet prewhiten
+        mean = np.mean(image)
+        std = np.std(image)
+        std_adj = np.maximum(std, 1.0/np.sqrt(image.size))
+        image = np.multiply(np.subtract(image, mean), 1/std_adj)
+        
         images = [image]
 
         with tf.Session(graph=self.graph) as sess:
